@@ -12,7 +12,7 @@ GIT_USERNAME = "YOUR_USERNAME" # Not required. Only needed if running the Discor
 GIT_PASSWORD = "YOUR_TOKEN" # Not required. Only needed if running the Discord bot
 GIT_URL = f'https://{GIT_USERNAME}:{GIT_PASSWORD}@github.com/ucanet/ucanet-registry.git'
 GIT_BRANCH = "main"
-GIT_PATH = "../ucanet-registry"
+GIT_PATH = "../ucanet-registry/"
 CACHE_SIZE = 3500
 CACHE_TTL = 600
 
