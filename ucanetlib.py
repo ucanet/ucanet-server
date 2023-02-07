@@ -80,6 +80,9 @@ def push_git():
 				line_count += 1
 			
 			for current_name, formatted_change in formatted_changes.items():
+				if len(registry_lines) > 0:
+					registry_lines[-1] = registry_lines[-1].replace("\n", "")
+					registry_lines[-1] = registry_lines[-1] + "\n"
 				registry_lines.append(formatted_change)
 			
 			if len(registry_lines) > 0:
@@ -94,7 +97,7 @@ def push_git():
 		
 		try:
 			repo = git.Repo(GIT_PATH)
-			repo.git.add(REGISTRY_PATH)
+			repo.git.add(all=True)
 			repo.index.commit("[automated] update registry")
 			repo.git.push('--set-upstream', repo.remote().name, GIT_BRANCH)
 		except:
