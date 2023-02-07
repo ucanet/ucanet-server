@@ -25,7 +25,7 @@ entry_lock = Lock()
 file_lock = Lock()
 pending_lock = Lock()
 
-if not os.path.exists(GIT_PATH)
+if not os.path.exists(GIT_PATH):
 	os.makedirs(GIT_PATH)
 	
 def is_git_repo(path):
