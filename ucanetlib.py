@@ -2,17 +2,18 @@ import re
 import tldextract
 import time
 import git
+import os
 from apscheduler.schedulers.background import BackgroundScheduler
 from ipaddress import ip_address, IPv4Address
 from cachetools import TTLCache
 from threading import Lock
 
-REGISTRY_PATH = "../ucanet-registry/ucanet-registry.txt"
+REGISTRY_PATH = "./ucanet-registry/ucanet-registry.txt"
 GIT_USERNAME = "YOUR_USERNAME" # Not required. Only needed if running the Discord bot
 GIT_PASSWORD = "YOUR_TOKEN" # Not required. Only needed if running the Discord bot
 GIT_URL = f'https://{GIT_USERNAME}:{GIT_PASSWORD}@github.com/ucanet/ucanet-registry.git'
 GIT_BRANCH = "main"
-GIT_PATH = "../ucanet-registry/"
+GIT_PATH = "./ucanet-registry/"
 CACHE_SIZE = 3500
 CACHE_TTL = 600
 
@@ -24,12 +25,15 @@ entry_lock = Lock()
 file_lock = Lock()
 pending_lock = Lock()
 
+if not os.path.exists(GIT_PATH)
+	os.makedirs(GIT_PATH)
+	
 def is_git_repo(path):
-    try:
-        _ = git.Repo(path).git_dir
-        return True
-    except git.exc.InvalidGitRepositoryError:
-        return False
+	try:
+		_ = git.Repo(path).git_dir
+		return True
+	except git.exc.InvalidGitRepositoryError:
+		return False
 
 def start_git():
 	if is_git_repo(GIT_PATH):	
