@@ -65,7 +65,6 @@ class UDPRequestHandler(BaseRequestHandler):
 
 def main():
 	print("Starting nameserver...")
-	schedule_pull()
 	
 	servers = []
 	servers.append(socketserver.ThreadingUDPServer((SERVER_IP, SERVER_PORT), UDPRequestHandler))
