@@ -96,6 +96,12 @@ class NeoHTTPHandler(http.server.BaseHTTPRequestHandler):
 			self.send_header('Location', "http://%s%s" % (host_name or "ucanet.net", urllib.parse.urlparse(request_location).path))
 			self.end_headers()
 			return
+		elif request_response.status_code == 302:
+			request_location = request_response.headers.get('location') or request_response.headers.get('Location')
+			self.send_response(302)
+			self.send_header('Location', request_location)
+			self.end_headers()
+			return
 		else:
 			self.send_response_only(200)
 
