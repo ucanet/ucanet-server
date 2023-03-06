@@ -4,6 +4,7 @@ LICENSE http://www.apache.org/licenses/LICENSE-2.0
 import sys
 import time
 import struct
+import urllib
 import argparse
 import datetime
 import requests
@@ -13,7 +14,6 @@ import http.server
 import socketserver
 from dnslib import *
 from ucanetlib import *
-from urllib.parse import urlunsplit
 
 SERVER_IP = '127.0.0.1' # Change to your local IP Address.
 SERVER_PORT = 53
@@ -76,37 +76,37 @@ class UDPRequestHandler(BaseRequestHandler):
 class NeoHTTPHandler(http.server.BaseHTTPRequestHandler):
 	def do_GET(self):
 		log_request(self)
-		neo_site = find_entry(self.headers.get('Host'))
 		
-		if neo_site and not format_ip(neo_site):		
-			request_response = requests.get("https://%s.neocities.org%s" % (neo_site, self.path), stream = True)
-
-			if request_response.status_code == 404:
-				self.send_error(404, "404 Not Found")
-				return
-			else:
-				self.send_response_only(200)
-
-			for current_header, current_value in request_response.headers.items():
-				if current_header.lower() == "transfer-encoding":
-					continue
-				if current_header.lower() == "content-length":
-					continue
-				if current_header.lower() == "content-security-policy":
-					continue
-				if current_header.lower() == "strict-transport-security":
-					continue
-				if current_header.lower() == "upgrade-insecure-requests":
-					continue
-					
-				self.send_header(current_header, current_value)
-
-			self.send_header('content-length', str(len(request_response.raw.data)))
-			self.end_headers()
-			self.wfile.write(request_response.raw.data)
+		host_name = self.headers.get('Host')
+		neo_site = find_entry(host_name)
+		
+		if neo_site and not format_ip(neo_site):	
+			neo_site = "https://%s.neocities.org%s" % (neo_site, self.path)
 		else:
+			neo_site = "https://ucanet.net%s" % (self.path)
+			
+		request_response = requests.get(neo_site, stream = True, allow_redirects=False)
+
+		if request_response.status_code == 404:
 			self.send_error(404, "404 Not Found")
-			return		
+			return
+		elif request_response.status_code == 301:
+			request_location = request_response.headers.get('location') or request_response.headers.get('Location')
+			self.send_response(301)
+			self.send_header('Location', "http://%s%s" % (host_name or "ucanet.net", urllib.parse.urlparse(request_location).path))
+			self.end_headers()
+			return
+		else:
+			self.send_response_only(200)
+
+		for current_header, current_value in request_response.headers.items():
+			if current_header.lower() == "content-type":
+				self.send_header(current_header, current_value)
+			else:
+				continue
+
+		self.end_headers()
+		self.wfile.write(request_response.content)	
     
 def server_init():
 	server_list = []
