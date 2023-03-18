@@ -96,7 +96,7 @@ class WebHTTPHandler(http.server.BaseHTTPRequestHandler):
 			if neo_site and not format_ip(neo_site):	
 				neo_site = "https://%s.neocities.org%s" % (neo_site, self.path)
 			else:
-				neo_site = "https://ucanet.net%s" % (self.path)
+				neo_site = "http://ucanet.net%s" % (self.path)
 				
 			request_response = requests.get(neo_site, stream = True, allow_redirects=False)
 
