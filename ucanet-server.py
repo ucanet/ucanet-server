@@ -73,15 +73,27 @@ class UDPRequestHandler(BaseRequestHandler):
 	def send_data(self, data):
 		return self.request[1].sendto(data, self.client_address)
 
+def extract_host(host_name):
+	if not host_name:
+		return host_name
+	if not urllib.parse.urlparse(host_name).scheme:
+		host_name = "http://" + host_name
+	return urllib.parse.urlparse(host_name).netloc
+	
+def extract_path(url_path):
+	if not url_path:
+		return url_path
+	return urllib.parse.urlparse(url_path).path
+	
 class WebHTTPHandler(http.server.BaseHTTPRequestHandler):
 	def do_GET(self):
 		log_request(self)
 		
-		host_name = self.headers.get('Host')
+		host_name = extract_host(self.headers.get('Host'))
 		neo_site = find_entry(host_name)
 		
 		if host_name and neo_site == "protoweb":	
-			proto_site = "http://%s%s" % (host_name, self.path)		
+			proto_site = "http://%s%s" % (host_name, extract_path(self.path))		
 
 			request_response = requests.get(proto_site, stream = True, allow_redirects = False, headers = self.headers, proxies = {'http':'http://wayback.protoweb.org:7851'})		
 			self.send_response_only(request_response.status_code)
@@ -94,9 +106,9 @@ class WebHTTPHandler(http.server.BaseHTTPRequestHandler):
 			self.wfile.write(request_response.content)
 		else:
 			if neo_site and not format_ip(neo_site):	
-				neo_site = "https://%s.neocities.org%s" % (neo_site, self.path)
+				neo_site = "https://%s.neocities.org%s" % (neo_site, extract_path(self.path))
 			else:
-				neo_site = "http://ucanet.net%s" % (self.path)
+				neo_site = "http://ucanet.net%s" % (extract_path(self.path))
 				
 			request_response = requests.get(neo_site, stream = True, allow_redirects=False)
 
@@ -130,11 +142,11 @@ class WebHTTPHandler(http.server.BaseHTTPRequestHandler):
 		def do_POST(self):
 			log_request(self)
 			
-			host_name = self.headers.get('Host')
+			host_name = extract_host(self.headers.get('Host'))
 			neo_site = find_entry(host_name)
 			
 			if host_name and neo_site == "protoweb":	
-				proto_site = "http://%s%s" % (host_name, self.path)		
+				proto_site = "http://%s%s" % (host_name, extract_path(self.path))	
 				content_len = int(self.headers.get('Content-Length', 0))
 				post_body = self.rfile.read(content_len)
 				
