@@ -76,9 +76,9 @@ class UDPRequestHandler(BaseRequestHandler):
 def extract_host(host_name):
 	if not host_name:
 		return host_name
-	if not urllib.parse.urlparse(host_name).scheme:
+	if not urllib.parse.urlparse(host_name).netloc:
 		host_name = "http://" + host_name
-	return urllib.parse.urlparse(host_name).netloc
+	return urllib.parse.urlparse(host_name).hostname
 	
 def extract_path(url_path):
 	if not url_path:
