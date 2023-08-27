@@ -83,7 +83,8 @@ def extract_host(host_name):
 def extract_path(url_path):
 	if not url_path:
 		return url_path
-	return urllib.parse.urlparse(url_path).path
+	parsed_url = urllib.parse.urlparse(url_path)
+	return parsed_url.path + ('' if parsed_url.query == '' else '?' + parsed_url.query)
 	
 class WebHTTPHandler(http.server.BaseHTTPRequestHandler):
 	def do_GET(self):
