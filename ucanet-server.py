@@ -17,6 +17,7 @@ from ucanetlib import *
 
 SERVER_IP = '127.0.0.1' # Change to your local IP Address.
 SERVER_PORT = 53
+ALTERNATE_PORT = 5453
 WEBSERVER_IP = '127.0.0.1' # Change this to the IP that serves Neocities and Protoweb sites
 WEBSERVER_PORT = 80
 
@@ -167,6 +168,8 @@ def server_init():
 	server_list = []
 	server_list.append(socketserver.ThreadingUDPServer((SERVER_IP, SERVER_PORT), UDPRequestHandler))
 	server_list.append(socketserver.ThreadingTCPServer((SERVER_IP, SERVER_PORT), TCPRequestHandler))
+	server_list.append(socketserver.ThreadingUDPServer((SERVER_IP, ALTERNATE_PORT), UDPRequestHandler))
+	server_list.append(socketserver.ThreadingTCPServer((SERVER_IP, ALTERNATE_PORT), TCPRequestHandler))
 	server_list.append(http.server.ThreadingHTTPServer((WEBSERVER_IP, WEBSERVER_PORT), WebHTTPHandler))
     
 	for current_server in server_list:
