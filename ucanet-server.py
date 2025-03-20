@@ -1,6 +1,8 @@
 """
 LICENSE http://www.apache.org/licenses/LICENSE-2.0
 """
+import fnmatch
+from urllib.parse import urlparse
 import sys
 import time
 import struct
@@ -86,13 +88,51 @@ def extract_path(url_path):
 		return url_path
 	parsed_url = urllib.parse.urlparse(url_path)
 	return parsed_url.path + ('' if parsed_url.query == '' else '?' + parsed_url.query)
-	
+
+
+	def is_approved(website_to_check):
+    approved_websites = ['*.free.nf', '*.neocities.org', 'aim.chivanet.org']
+    # aim.chivanet.org have an implementation of american online AIM chat thing (future plans :))
+    # Extract the domain from the website (get everything after the first dot)
+    domain_to_check = website_to_check.split('/')[-1]  # This grabs the full domain part (after the first slash)
+
+    # If the domain starts with 'www.', remove it (optional step)
+    if domain_to_check.startswith('www.'):
+        domain_to_check = domain_to_check[4:]
+
+    print(f"Domain to check: {domain_to_check}")  # Debugging line to see the extracted domain
+
+    # Loop through the approved websites list
+    for approved in approved_websites:
+        if approved.startswith('*'):
+            # Remove the '*' from the approved domain (handle wildcard)
+            pattern = approved.lstrip('*')
+            print(f"Checking against wildcard pattern: {pattern}")
+
+            if domain_to_check.endswith(pattern):  # Check if the domain ends with the pattern
+                return True
+        else:
+            # If no wildcard, check for exact match
+            if domain_to_check == approved:
+                print(f"Exact match found: {domain_to_check} == {approved}")
+                return True
+
+    # If no match is found, return False
+    return False
+
 class WebHTTPHandler(http.server.BaseHTTPRequestHandler):
 	def do_GET(self):
 		log_request(self)
 		
 		host_name = extract_host(self.headers.get('Host'))
 		neo_site = find_entry(host_name)
+		rpl_site = neo_site
+                checkSite = is_approved(neo_site)
+                if checkSite is False:
+			#site is not authorized - maybe we could forward it to a page saying the site has not yet been authorized for use with ucanet
+                        neo_site ="ucanet.net"
+                        rpl_site ="ucanet.net"
+
 		
 		if host_name and neo_site == "protoweb":	
 			proto_site = "http://%s%s" % (host_name, extract_path(self.path))		
@@ -108,11 +148,13 @@ class WebHTTPHandler(http.server.BaseHTTPRequestHandler):
 			self.wfile.write(request_response.content)
 		else:
 			if neo_site and not format_ip(neo_site):	
-				neo_site = "https://%s.neocities.org%s" % (neo_site, extract_path(self.path))
+				neo_site = "https://%s%s" % (neo_site, extract_path(self.path))
 			else:
 				neo_site = "http://ucanet.net%s" % (extract_path(self.path))
 				
-			request_response = requests.get(neo_site, stream = True, allow_redirects=False)
+			headers = self.headers
+<                       headers['Host'] = rpl_site
+<                       request_response = requests.request('GET', neo_site, stream = True, allow_redirects=False, headers = headers, verify=False)
 
 			if request_response.status_code == 404:
 				self.send_error(404, "404 Not Found")
