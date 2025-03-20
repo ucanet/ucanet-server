@@ -89,8 +89,7 @@ def extract_path(url_path):
 	parsed_url = urllib.parse.urlparse(url_path)
 	return parsed_url.path + ('' if parsed_url.query == '' else '?' + parsed_url.query)
 
-
-	def is_approved(website_to_check):
+def is_approved(website_to_check):
     approved_websites = ['*.free.nf', '*.neocities.org', 'aim.chivanet.org']
     # aim.chivanet.org have an implementation of american online AIM chat thing (future plans :))
     # Extract the domain from the website (get everything after the first dot)
