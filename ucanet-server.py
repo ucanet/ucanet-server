@@ -99,8 +99,6 @@ def is_approved(website_to_check):
     if domain_to_check.startswith('www.'):
         domain_to_check = domain_to_check[4:]
 
-    print(f"Domain to check: {domain_to_check}")  # Debugging line to see the extracted domain
-
     # Loop through the approved websites list
     for approved in approved_websites:
         if approved.startswith('*'):
