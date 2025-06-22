@@ -1,0 +1,6 @@
+dnslib
+requests
+tldextract
+GitPython
+cachetools
+APScheduler
