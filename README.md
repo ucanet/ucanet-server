@@ -27,8 +27,9 @@ An alt-root DNS and HTTP server for the [ucanet](https://ucanet.net) network —
 **ucanet-server** is a fully local server that handles:
 
 - DNS resolution (UDP/TCP)
-- Web proxying (HTTP only)
-- Neocities and Protoweb integration
+- Web proxying (HTTP/HTTPS only)
+- SSL certificates 
+- Neocities, Freesites and Protoweb integration, with the capability to expand to others.
 - An alternative to the modern internet
 
 It serves only domains found in the [ucanet-registry](https://github.com/ucanet/ucanet-registry) and **does not access or resolve the real web**.
@@ -50,6 +51,7 @@ This is the backbone of the ucanet network.
 Domains can point to:
 - an IP address
 - a Neocities website
+- a Freesites website
 - the keyword `protoweb` (for archived pages)
 
 ---
@@ -59,7 +61,10 @@ Domains can point to:
 - Alternative DNS server (UDP + TCP)
 - HTTP proxy
 - Neocities support (`username.neocities.org`)
+- Freesites support (`username.free.nf`)
 - Protoweb integration via `wayback.protoweb.org`
+- HTTPS MITM: Dynamically intercept TLS connections for ucanet specifc domains using generated certificates.
+- Pass-through Support: A ucanet domain can link directly to a realworld domain name, not just an ip address for less maintenance on dynamic IP Addresses.
 - Domain registry that syncs with GitHub repository
 - Can run offline
 
@@ -82,11 +87,12 @@ cd ucanet-server
 ```
 2. Edit the config
 ```python
-SERVER_IP = '127.0.0.1'       # Your machine’s IP
+WEBSERVER_IP = '127.0.0.1'    # Your machine’s IP used for the 3 servers DNS, protoweb, and HTTPS
 SERVER_PORT = 53              # Main DNS port
-ALTERNATE_PORT = 5453         # Optional second DNS port
-WEBSERVER_IP = '127.0.0.1'    # Used for HTTP requests
 WEBSERVER_PORT = 80           # HTTP port
+HTTPS_PORT = 443              # HTTPS port
+MITM_CERTS_DIR = './certs'    # Location of ucanet specific hosting SSL Certificates
+
 ``` 
 4. In `ucanetlib.py`, set your Git credentials (optional for bots):
 ```python
@@ -97,6 +103,18 @@ GIT_PASSWORD = "your_token"
 ```bash
 python ucanet-server.py
 ```
+## Testing
+
+To test that DNS redirection and MITM works:
+
+    Set your system or browser DNS to the machine running the script.
+
+    Visit a domain in the registry (e.g. http://oldsite.com).
+
+    If configured to protoweb, it will fetch content from wayback.protoweb.org.
+
+    If configured for MITM, it will intercept HTTPS and modify requests as needed.
+
 ## Domain Registry
 The domain registry is stored in this repo:
 [Ucanet Domain Registry](https://github.com/ucanet/ucanet-registry)
