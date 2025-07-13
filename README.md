@@ -53,6 +53,7 @@ Domains can point to:
 - an IP address
 - a Neocities website
 - a Freesites website
+- a ddns.net domain
 - the keyword `protoweb` (for archived pages)
 
 ---
@@ -62,6 +63,7 @@ Domains can point to:
 - Alternative DNS server (UDP + TCP)
 - HTTP proxy
 - Neocities support (`username.neocities.org`)
+- ddns.net support (`username.ddns.net`)
 - Freesites support (`username.free.nf`)
 - Protoweb integration via `wayback.protoweb.org`
 - HTTPS MITM: Dynamically intercept TLS connections for ucanet specifc domains using generated certificates.
