@@ -82,9 +82,11 @@ class DNSHandler(socketserver.BaseRequestHandler):
         # Check if domain is a redirect target in the registry
         for hostname, (cert_flag, redirect) in site_registry.items():
             if redirect.lower() == domain and hostname.lower() != redirect.lower():
-                print(f"[DNS] Intercepted redirect target → rewrite to {hostname}")
-                domain = hostname
-                break
+                print(f"[DNS] BLOCKING redirect target → {domain} is a known redirect for {hostname}")
+                # Return NXDOMAIN
+                response = data[:2] + b'\x81\x83' + data[4:6] + b'\x00\x00\x00\x00\x00\x00' + data[12:]
+                sock.sendto(response, self.client_address)
+                return
 
         if domain in site_registry:
             cert_flag, redirect = site_registry[domain]
@@ -100,12 +102,16 @@ class DNSHandler(socketserver.BaseRequestHandler):
                 ip = resolve_redirect(redirect)
         else:
             print(f"[DNS] Not in registry, using fallback DNS")
-            ip = '8.8.8.8'
+            # Return NXDOMAIN for unknown sites (optional; or use real DNS if desired)
+            response = data[:2] + b'\x81\x83' + data[4:6] + b'\x00\x00\x00\x00\x00\x00' + data[12:]
+            sock.sendto(response, self.client_address)
+            return
 
-        # Craft DNS response
+        # Craft DNS A record response
         response = data[:2] + b'\x81\x80' + data[4:6]*2 + b'\x00\x00\x00\x00' + data[12:]
         response += b'\xc0\x0c' + b'\x00\x01\x00\x01\x00\x00\x00\x3c\x00\x04' + socket.inet_aton(ip)
         sock.sendto(response, self.client_address)
+
 
 #################################
 # HTTP HANDLER
