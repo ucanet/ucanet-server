@@ -79,22 +79,28 @@ class DNSHandler(socketserver.BaseRequestHandler):
         domain = domain[:-1].lower()
         print(f"[DNS] Query for: {domain}")
 
+        # Check if domain is a redirect target in the registry
+        for hostname, (cert_flag, redirect) in site_registry.items():
+            if redirect.lower() == domain and hostname.lower() != redirect.lower():
+                print(f"[DNS] Intercepted redirect target → rewrite to {hostname}")
+                domain = hostname
+                break
+
         if domain in site_registry:
             cert_flag, redirect = site_registry[domain]
             cert_av = Path('certs/' + domain + '.crt')
             if cert_av.is_file():
                 print(f"[DNS] MITM site → return proxy IP")
-                ip = WEBSERVER_IP  # IP of the machine running HTTPSProxyHandler
+                ip = WEBSERVER_IP
             elif redirect == 'protoweb':
                 print(f"[DNS] PROTOWEB")
-                ip = WEBSERVER_IP  # IP of the machine running HTTPSProxyHandler
-                #self.handle_protoweb_request(method='GET')
+                ip = WEBSERVER_IP
             else:
                 print(f"[DNS] PASS-THROUGH site → resolve real IP")
-                ip = resolve_redirect(redirect)  # Do real DNS or custom logic
+                ip = resolve_redirect(redirect)
         else:
             print(f"[DNS] Not in registry, using fallback DNS")
-            ip = '8.8.8.8'  # Default fallback
+            ip = '8.8.8.8'
 
         # Craft DNS response
         response = data[:2] + b'\x81\x80' + data[4:6]*2 + b'\x00\x00\x00\x00' + data[12:]
