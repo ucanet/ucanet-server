@@ -127,6 +127,21 @@ def find_entry(domain_name):
 
     return False
 
+def is_internal_domain(domain, registry):
+    """Return True if the domain exists in the registry and is not a redirect."""
+    #entry = registry.get(domain.lower())
+    #return entry is not None and entry[1].lower() == domain.lower()
+    if not domain:
+        return False
+
+    domain = domain.lower()
+
+    # Remove leading 'www.' if present
+    if domain.startswith("www."):
+        domain = domain[4:]
+
+    return domain in registry
+
 # === Header Helpers ===
 def copy_response_headers(src_response, dst_handler, allowed_headers=None):
     hop_by_hop = {
