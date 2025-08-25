@@ -14,7 +14,7 @@ from cachetools import TTLCache
 # === Constants ===
 REGISTRY_PATH = "../ucanet-registry/ucanet-registry.txt"
 MITM_CERTS_DIR = './certs'
-WEBSERVER_IP = '192.168.1.13'
+WEBSERVER_IP = '127.0.0.1' #change this to your server ip address
 CACHE_SIZE = 3500
 CACHE_TTL = 600
 
