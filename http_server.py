@@ -5,9 +5,11 @@ import requests
 
 from library import (
     log_request,
+    site_registry,
     extract_host,
     extract_path,
     find_entry,
+    is_internal_domain,
     copy_response_headers,
 )
 
@@ -20,6 +22,11 @@ class WebHTTPHandler(http.server.BaseHTTPRequestHandler):
         log_request(self)
 
         host_name = extract_host(self.headers.get('Host'))
+        if not is_internal_domain(host_name, site_registry):
+            print(f"[HTTP] BLOCKED: {host_name} is not an internal domain")
+            self.send_error(403, "Forbidden: External domain access denied")
+            return
+
         entry = find_entry(host_name)
 
         print(f"[DEBUG] Raw Host Header: {self.headers.get('Host')}")
@@ -32,9 +39,10 @@ class WebHTTPHandler(http.server.BaseHTTPRequestHandler):
         target_url = (
             f"https://{entry}{extract_path(self.path)}"
             if entry != "protoweb"
-            else f"http://ucanet.net{extract_path(self.path)}"
+            else f"http://{entry}{extract_path(self.path)}"
         )
 
+        print(f"[DEBUG] target_url: {target_url}")
         client_headers = {
             k: v for k, v in self.headers.items()
             if k.lower() not in {
@@ -64,6 +72,11 @@ class WebHTTPHandler(http.server.BaseHTTPRequestHandler):
         self.send_response_only(response.status_code)
         copy_response_headers(response, self)
         self.end_headers()
+
+        # Don't write body for 204 or 304 responses
+        if response.status_code in (204, 304):
+            return
+
 
         try:
             for chunk in response.iter_content(chunk_size=4096):
