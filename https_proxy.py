@@ -12,6 +12,7 @@ from library import (
     pipe,
     resolve_redirect,
     site_registry,
+    is_internal_domain
 )
 
 HTTPS_PORT = 443
@@ -23,9 +24,15 @@ class HTTPSProxyHandler(socketserver.BaseRequestHandler):
         print("[DEBUG] HTTPS handler received a connection")
         client = self.request
         sni = extract_sni(client)
+
         if not sni:
             print("[HTTPS] Failed to extract SNI")
             client.close()
+            return
+
+        if not is_internal_domain(sni, site_registry):
+            print(f"[HTTPS] BLOCKED: {sni} is not an internal domain")
+            self.request.close()  # Close connection silently
             return
 
         owner, real_host = site_registry.get(sni.lower(), (1, sni))
