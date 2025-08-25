@@ -27,14 +27,6 @@ class DNSHandler(socketserver.BaseRequestHandler):
 
         print(f"[DNS] Query for: {domain}")
 
-        # Block real-world redirects
-        for hostname, (cert_flag, redirect) in site_registry.items():
-            if redirect.lower() == domain and hostname.lower() != redirect.lower():
-                print(f"[DNS] BLOCKING redirect target → {domain} is a known redirect for {hostname}")
-                response = self.build_nxdomain(data)
-                sock.sendto(response, self.client_address)
-                return
-
         if domain in site_registry:
             owner, redirect = site_registry[domain]
             cert_av = Path(f'certs/{domain}.crt')
