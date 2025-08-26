@@ -140,5 +140,3 @@ Licensed under the [AGPL-3.0 license](https://github.com/ucanet/ucanet-server#AG
  - [ucanet/ucanet-registry](https://github.com/ucanet/ucanet-registry) The domain registry for ucanet.
  - [ucanet/ucanet-discord-bot](https://github.com/ucanet/ucanet-discord-bot) A discord bot for managing ucanet domains.
  - [ucanet/ucanet-python-lib](https://github.com/ucanet/ucanet-python-lib) A small library for interacting with the ucanet registry.
- - [RetroAuth on the real world internet](https://retroauth.free.nf) / [RetroAuth on ucanet](https://retroauth.com) SSL Certificate Authority. 
-
