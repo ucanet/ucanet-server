@@ -5,6 +5,7 @@ from http_server import start_http_server
 from https_proxy import start_https_server
 
 def main():
+    init_library()
     print("[INIT] Starting DNS, HTTP, and HTTPS servers...")
 
     threading.Thread(target=start_dns_server, daemon=True).start()
