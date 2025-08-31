@@ -3,6 +3,7 @@ import time
 from dns_server import start_dns_server
 from http_server import start_http_server
 from https_proxy import start_https_server
+from library import init_library()
 
 def main():
     init_library()
